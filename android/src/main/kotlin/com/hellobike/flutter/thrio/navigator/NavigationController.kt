@@ -93,7 +93,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
         private var result: NullableIntCallback? = null
         private var poppedResult: NullableAnyCallback? = null
 
-        fun <T> push(
+        fun <T : Any> push(
             url: String,
             params: T? = null,
             animated: Boolean,
@@ -281,7 +281,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
     }
 
     object Pop {
-        fun <T> pop(
+        fun <T : Any> pop(
             params: T? = null,
             animated: Boolean = true,
             result: BooleanCallback? = null
@@ -302,7 +302,9 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                         if (it == false) {
                             firstHolder.activity?.get()?.apply {
                                 if (this is ThrioActivity && this.shouldMoveToBack()) {
-                                    moveTaskToBack(false)
+                                    ///这里非thrioActivity为根的情况下改成finish,可以避免栈被回收时返回问题
+                                    //moveTaskToBack(false)
+                                    this.finish()
                                 }
                             }
                         } else {

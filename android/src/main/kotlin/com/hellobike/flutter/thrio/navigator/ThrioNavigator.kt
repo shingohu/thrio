@@ -31,7 +31,7 @@ object ThrioNavigator {
 
     @JvmStatic
     @JvmOverloads
-    fun <T> push(
+    fun <T : Any> push(
         url: String,
         params: T? = null,
         animated: Boolean = true,
@@ -81,7 +81,7 @@ object ThrioNavigator {
 
     @JvmStatic
     @JvmOverloads
-    fun <T> pop(
+    fun <T : Any> pop(
         params: T? = null,
         animated: Boolean = true,
         result: BooleanCallback = {}

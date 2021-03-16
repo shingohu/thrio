@@ -139,7 +139,7 @@ class ModuleAnchor
     if (url?.isNotEmpty ?? false) {
       if (T == ThrioModule || T == dynamic || T == Object) {
         return modules == null ? null : modules.last as T;
-      } else if (T.toString() == (NavigatorPageBuilder).toString()) {
+      } else if (T == NavigatorPageBuilder) {
         if (modules == null) {
           return null;
         }
@@ -147,7 +147,7 @@ class ModuleAnchor
         if (lastModule is ModulePageBuilder) {
           return lastModule.pageBuilder as T;
         }
-      } else if (T.toString() == (RouteTransitionsBuilder).toString()) {
+      } else if (T == RouteTransitionsBuilder) {
         if (modules == null) {
           return null;
         }

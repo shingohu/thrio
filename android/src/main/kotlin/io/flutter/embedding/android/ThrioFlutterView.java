@@ -1024,6 +1024,12 @@ public class ThrioFlutterView extends FrameLayout implements MouseCursorPlugin.M
         textInputPlugin.getInputMethodManager().restartInput(this);
         textInputPlugin.destroy();
 
+        androidKeyProcessor.destroy();
+
+        if (mouseCursorPlugin != null) {
+            mouseCursorPlugin.destroy();
+        }
+
         // Instruct our FlutterRenderer that we are no longer interested in being its RenderSurface.
         FlutterRenderer flutterRenderer = flutterEngine.getRenderer();
         isFlutterUiDisplayed = false;

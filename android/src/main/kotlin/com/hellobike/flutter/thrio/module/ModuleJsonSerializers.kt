@@ -32,7 +32,7 @@ internal object ModuleJsonSerializers {
 
     val serializers by lazy { RegistryMap<String, JsonSerializer<*>>() }
 
-    fun <T> serializeParams(params: T?): Any? {
+    fun <T : Any> serializeParams(params: T?): Any? {
         if (params == null) {
             return null
         }

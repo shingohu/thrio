@@ -5,10 +5,15 @@
         <activity
             android:name="io.flutter.embedding.android.ThrioActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:screenOrientation="sensor"
             android:hardwareAccelerated="true"
-            android:launchMode="standard"
             android:theme="@style/Theme.Thrio.Default"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize" >
+
+            <meta-data android:name="io.flutter.embedding.android.SplashScreenDrawable" android:resource="@drawable/thrio_launch_background"/>
+            <!-- Theme to apply as soon as Flutter begins rendering frames -->
+            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/Theme.Thrio.Default"/>
+
+
+        </activity>
     </application>
 </manifest>

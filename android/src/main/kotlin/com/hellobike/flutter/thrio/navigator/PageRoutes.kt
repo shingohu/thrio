@@ -32,6 +32,7 @@ import com.hellobike.flutter.thrio.NullableIntCallback
 import com.hellobike.flutter.thrio.extension.getEntrypoint
 import com.hellobike.flutter.thrio.extension.getPageId
 import com.hellobike.flutter.thrio.extension.getRouteSettings
+import com.hellobike.flutter.thrio.module.ModuleJsonSerializers
 import com.hellobike.flutter.thrio.module.ModulePageObservers
 import io.flutter.embedding.android.ThrioActivity
 import java.lang.ref.WeakReference
@@ -146,7 +147,7 @@ internal object PageRoutes : Application.ActivityLifecycleCallbacks {
         result(isMatch)
     }
 
-    fun <T> pop(
+    fun <T : Any> pop(
         params: T?,
         animated: Boolean,
         inRoot: Boolean = false,
@@ -185,6 +186,8 @@ internal object PageRoutes : Application.ActivityLifecycleCallbacks {
         }
     }
 
+
+    @OptIn(ExperimentalStdlibApi::class)
     fun popTo(url: String, index: Int?, animated: Boolean, result: BooleanCallback) {
         val routeHolder = routeHolders.lastOrNull { it.lastRoute(url, index) != null }
         if (routeHolder == null || routeHolder.activity?.get() == null) {
@@ -377,6 +380,13 @@ internal object PageRoutes : Application.ActivityLifecycleCallbacks {
                 val holder = routeHolders.lastOrNull { it.pageId == pageId }
                 holder?.activity = WeakReference(activity)
             }
+
+
+//TODO  终极方案之重启App 可以通过一个静态变量判断是否是进程被杀死,然后重启app,但是会有短暂的黑屏切换效果
+//            val  intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName())
+//            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//            activity.startActivity(intent)
+//            System.exit(0);
         }
     }
 
@@ -403,6 +413,19 @@ internal object PageRoutes : Application.ActivityLifecycleCallbacks {
         val pageId = activity.intent.getPageId()
         if (pageId != NAVIGATION_PAGE_ID_NONE) {
             outState.putInt(NAVIGATION_PAGE_ID_KEY, pageId)
+            if (activity is ThrioActivity) {
+                ///这里将第一个页面缓存起来,用于AC回收重启时恢复
+                val pr = lastRouteHolder(pageId)?.routes?.firstOrNull();
+                if (pr != null) {
+
+                    val settingsData = hashMapOf<String, Any?>().also {
+                        pr.settings.params = ModuleJsonSerializers.serializeParams(pr.settings.params)
+                        it.putAll(pr.settings.toArguments())
+                    }
+                    outState.putSerializable("NAVIGATION_ROUTE_SETTINGS_" + pageId, settingsData);
+                }
+
+            }
         }
     }
 

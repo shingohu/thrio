@@ -109,7 +109,7 @@ internal data class PageRouteHolder(
         result(isMatch)
     }
 
-    fun <T> pop(
+    fun <T : Any> pop(
         params: T?,
         animated: Boolean,
         inRoot: Boolean = false,
