@@ -546,7 +546,7 @@ public class ThrioFlutterView extends FrameLayout implements MouseCursorPlugin.M
                         : insets.getSystemWindowInsetLeft();
 
         // Bottom system inset (keyboard) should adjust scrollable bottom edge (inset).
-        viewportMetrics.viewInsetTop = 0;
+        viewportMetrics.paddingTop = 0;
         viewportMetrics.viewInsetRight = 0;
         viewportMetrics.viewInsetBottom =
                 navigationBarHidden
@@ -803,7 +803,7 @@ public class ThrioFlutterView extends FrameLayout implements MouseCursorPlugin.M
     // TODO(mattcarroll): Confer with Ian as to why we need this method. Delete if possible, otherwise
     // add comments.
     private void resetWillNotDraw(boolean isAccessibilityEnabled, boolean isTouchExplorationEnabled) {
-        if (!flutterEngine.getRenderer().isSoftwareRenderingEnabled()) {
+        if (flutterEngine != null && !flutterEngine.getRenderer().isSoftwareRenderingEnabled()) {
             setWillNotDraw(!(isAccessibilityEnabled || isTouchExplorationEnabled));
         } else {
             setWillNotDraw(false);
@@ -930,7 +930,13 @@ public class ThrioFlutterView extends FrameLayout implements MouseCursorPlugin.M
         // Initialize various components that know how to process Android View I/O
         // in a way that Flutter understands.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (mouseCursorPlugin != null) {
+                mouseCursorPlugin.destroy();
+            }
             mouseCursorPlugin = new MouseCursorPlugin(this, this.flutterEngine.getMouseCursorChannel());
+        }
+        if (textInputPlugin != null) {
+            textInputPlugin.destroy();
         }
         textInputPlugin =
                 new TextInputPlugin(
@@ -938,10 +944,16 @@ public class ThrioFlutterView extends FrameLayout implements MouseCursorPlugin.M
                         this.flutterEngine.getTextInputChannel(),
                         this.flutterEngine.getPlatformViewsController());
         localizationPlugin = this.flutterEngine.getLocalizationPlugin();
+        if (androidKeyProcessor != null) {
+            androidKeyProcessor.destroy();
+        }
         androidKeyProcessor =
                 new AndroidKeyProcessor(this, this.flutterEngine.getKeyEventChannel(), textInputPlugin);
         androidTouchProcessor =
                 new AndroidTouchProcessor(this.flutterEngine.getRenderer(), /*trackMotionEvents=*/ false);
+        if (accessibilityBridge != null) {
+            accessibilityBridge.release();
+        }
         accessibilityBridge =
                 new AccessibilityBridge(
                         this,
@@ -1014,20 +1026,24 @@ public class ThrioFlutterView extends FrameLayout implements MouseCursorPlugin.M
         flutterEngine.getPlatformViewsController().detachAccessibiltyBridge();
 
         // Disconnect and clean up the AccessibilityBridge.
-        accessibilityBridge.release();
-        accessibilityBridge = null;
+        if (accessibilityBridge != null) {
+            accessibilityBridge.release();
+            accessibilityBridge = null;
+        }
 
         // Inform the Android framework that it should retrieve a new InputConnection
         // now that the engine is detached. The new InputConnection will be null, which
         // signifies that this View does not process input (until a new engine is attached).
         // TODO(mattcarroll): once this is proven to work, move this line ot TextInputPlugin
-        textInputPlugin.getInputMethodManager().restartInput(this);
-        textInputPlugin.destroy();
+        if (textInputPlugin != null) {
+            textInputPlugin.getInputMethodManager().restartInput(this);
+            textInputPlugin.destroy();
+            textInputPlugin = null;
+        }
 
-        androidKeyProcessor.destroy();
-
-        if (mouseCursorPlugin != null) {
-            mouseCursorPlugin.destroy();
+        if (androidKeyProcessor != null) {
+            androidKeyProcessor.destroy();
+            androidKeyProcessor = null;
         }
 
         // Instruct our FlutterRenderer that we are no longer interested in being its RenderSurface.
