@@ -61,7 +61,7 @@ class ThrioNavigatorImplement {
           anchor.remove(key);
         } else {
           anchor.set(key, _deserializeParams(value));
-
+        }
       }
     });
     _sendChannel = NavigatorRouteSendChannel(_channel);
@@ -101,9 +101,11 @@ class ThrioNavigatorImplement {
   NavigatorRouteReceiveChannel _receiveChannel;
 
   NavigatorRouteObserverChannel _routeChannel;
+
   NavigatorRouteObserverChannel get routeChannel => _routeChannel;
 
   NavigatorPageObserverChannel _pageChannel;
+
   NavigatorPageObserverChannel get pageChannel => _pageChannel;
 
   NavigatorObserverManager _observerManager;
