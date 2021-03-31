@@ -19,6 +19,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -59,7 +61,7 @@ class ThrioNavigatorImplement {
           anchor.remove(key);
         } else {
           anchor.set(key, _deserializeParams(value));
-        }
+
       }
     });
     _sendChannel = NavigatorRouteSendChannel(_channel);

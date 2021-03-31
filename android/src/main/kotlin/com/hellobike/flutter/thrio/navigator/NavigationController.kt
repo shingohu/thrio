@@ -94,12 +94,12 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
         private var poppedResult: NullableAnyCallback? = null
 
         fun <T : Any> push(
-            url: String,
-            params: T? = null,
-            animated: Boolean,
-            fromEntrypoint: String = "",
-            poppedResult: NullableAnyCallback? = null,
-            result: NullableIntCallback?
+                url: String,
+                params: T? = null,
+                animated: Boolean,
+                fromEntrypoint: String = "",
+                poppedResult: NullableAnyCallback? = null,
+                result: NullableIntCallback?
         ) {
             if (routeAction != RouteAction.NONE) {
                 result?.invoke(null)
@@ -118,7 +118,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             }
 
             val builder = ModuleIntentBuilders.intentBuilders[url]
-                ?: ModuleIntentBuilders.flutterIntentBuilder
+                    ?: ModuleIntentBuilders.flutterIntentBuilder
 
             var entrypoint = NAVIGATION_NATIVE_ENTRYPOINT
 
@@ -146,7 +146,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             val intent = if (lastActivity is ThrioActivity && lastEntrypoint == entrypoint) {
                 lastActivity.intent
             } else {
-                builder.build(lastActivity, entrypoint).apply {
+                builder.build(lastActivity, entrypoint, params).apply {
                     if (!animated) {
                         addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     }
@@ -167,16 +167,16 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
                     doPush(lastActivity)
                 } else {
                     FlutterEngineFactory.startup(
-                        lastActivity,
-                        entrypoint,
-                        object : EngineReadyListener {
-                            override fun onReady(params: Any?) {
-                                if (params !is String || params != entrypoint) {
-                                    throw IllegalStateException("entrypoint must match.")
+                            lastActivity,
+                            entrypoint,
+                            object : EngineReadyListener {
+                                override fun onReady(params: Any?) {
+                                    if (params !is String || params != entrypoint) {
+                                        throw IllegalStateException("entrypoint must match.")
+                                    }
+                                    lastActivity.startActivity(intent)
                                 }
-                                lastActivity.startActivity(intent)
-                            }
-                        })
+                            })
                 }
             } else {
                 lastActivity.startActivity(intent)
@@ -229,11 +229,11 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
     object Notify {
 
         fun <T> notify(
-            url: String? = null,
-            index: Int? = null,
-            name: String,
-            params: T? = null,
-            result: BooleanCallback? = null
+                url: String? = null,
+                index: Int? = null,
+                name: String,
+                params: T? = null,
+                result: BooleanCallback? = null
         ) {
             if ((url != null && index != null && index < 0) || !PageRoutes.hasRoute(url)) {
                 result?.invoke(false)
@@ -257,20 +257,20 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             notifications.forEach {
                 if (activity is ThrioActivity) {
                     val arguments = if (it.value == null) mapOf<String, Any>(
-                        "__event_name__" to "__onNotify__",
-                        "url" to route.settings.url,
-                        "index" to route.settings.index,
-                        "name" to it.key
+                            "__event_name__" to "__onNotify__",
+                            "url" to route.settings.url,
+                            "index" to route.settings.index,
+                            "name" to it.key
                     ) else mapOf(
-                        "__event_name__" to "__onNotify__",
-                        "url" to route.settings.url,
-                        "index" to route.settings.index,
-                        "name" to it.key,
-                        "params" to ModuleJsonSerializers.serializeParams(it.value)
+                            "__event_name__" to "__onNotify__",
+                            "url" to route.settings.url,
+                            "index" to route.settings.index,
+                            "name" to it.key,
+                            "params" to ModuleJsonSerializers.serializeParams(it.value)
                     )
                     Log.i(
-                        "Thrio",
-                        "url-> ${route.settings.url} index-> ${route.settings.index} notify"
+                            "Thrio",
+                            "url-> ${route.settings.url} index-> ${route.settings.index} notify"
                     )
                     activity.onNotify(arguments) {}
                 } else if (activity is PageNotifyListener) {
@@ -282,9 +282,9 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
 
     object Pop {
         fun <T : Any> pop(
-            params: T? = null,
-            animated: Boolean = true,
-            result: BooleanCallback? = null
+                params: T? = null,
+                animated: Boolean = true,
+                result: BooleanCallback? = null
         ) {
             if (routeAction != RouteAction.NONE) {
                 result?.invoke(false)
@@ -417,7 +417,7 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
             if (pageId != NAVIGATION_PAGE_ID_NONE && index != -1) {
                 destroyingHolders.add(poppingToHolders[index])
                 if (poppingToHolders.count() == poppedToHolderCount &&
-                    destroyingHolders.count() == poppedToHolderCount
+                        destroyingHolders.count() == poppedToHolderCount
                 ) {
                     result?.invoke(true)
                     result = null
@@ -434,10 +434,10 @@ internal object NavigationController : Application.ActivityLifecycleCallbacks {
     object Remove {
 
         fun remove(
-            url: String,
-            index: Int?,
-            animated: Boolean = true,
-            result: BooleanCallback? = null
+                url: String,
+                index: Int?,
+                animated: Boolean = true,
+                result: BooleanCallback? = null
         ) {
             if (routeAction != RouteAction.NONE) {
                 result?.invoke(false)

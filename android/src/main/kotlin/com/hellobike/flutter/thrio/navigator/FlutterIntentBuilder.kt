@@ -32,15 +32,13 @@ import io.flutter.embedding.android.ThrioFlutterActivity
 
 open class FlutterIntentBuilder : IntentBuilder {
 
-    override fun getActivityClz(): Class<out Activity> = ThrioActivity::class.java
-
-    override fun build(context: Context, entrypoint: String): Intent {
+    override fun build(context: Context, entrypoint: String, params: Any?): Intent {
         return ThrioFlutterActivity
-            .withCachedEngine(entrypoint)
-            .backgroundMode(FlutterActivityLaunchConfigs.BackgroundMode.transparent)
-            .destroyEngineWithActivity(false)
-            .build(context).apply {
-                setClass(context, getActivityClz())
-            }
+                .withCachedEngine(entrypoint)
+                .backgroundMode(FlutterActivityLaunchConfigs.BackgroundMode.transparent)
+                .destroyEngineWithActivity(false)
+                .build(context).apply {
+                    setClass(context, ThrioActivity::class.java)
+                }
     }
 }
