@@ -85,17 +85,17 @@ class ModuleContext {
   ///
   Stream<T>? on<T>(String key) {
     if (module == anchor) {
-      return (T as ModuleParamScheme).onParam(key);
+      return anchor.onParam<T>(key);
     }
 
     if (module is ModuleParamScheme) {
       final paramModule = module as ModuleParamScheme;
       if (paramModule.hasParamScheme<T>(key)) {
-        return paramModule.onParam(key);
+        return paramModule.onParam<T>(key);
       }
     }
 
-    return module.parent?._moduleContext.on(key);
+    return module.parent?._moduleContext.on<T>(key);
   }
 
   @override
