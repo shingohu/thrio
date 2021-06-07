@@ -19,6 +19,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +61,8 @@ class NavigatorWidget extends StatefulWidget {
 class NavigatorWidgetState extends State<NavigatorWidget> {
   final _style = const SystemUiOverlayStyle();
 
+
+
   List<Route> get history => widget._observerManager.pageRoutes;
 
   /// 还无法实现animated=false
@@ -68,8 +72,7 @@ class NavigatorWidgetState extends State<NavigatorWidget> {
       return false;
     }
 
-    final pageBuilder =
-        ThrioModule.get<NavigatorPageBuilder>(url: settings.url);
+    final pageBuilder = ThrioModule.get<NavigatorPageBuilder>(url: settings.url);
     if (pageBuilder == null) {
       return false;
     }
@@ -107,10 +110,24 @@ class NavigatorWidgetState extends State<NavigatorWidget> {
     bool animated = true,
     bool inRoot = false,
   }) async {
+
+
+
     final navigatorState = widget.child.tryStateOf<NavigatorState>();
     if (navigatorState == null) {
       return false;
     }
+
+    // 处理经过 Navigator 入栈的匿名 Route
+    if (history.last.settings.name == null) {
+      return navigatorState.maybePop().then((_) => false);
+    }
+
+    // 处理经过 Navigator 入栈的匿名 Route
+    if (settings.name == null) {
+      return navigatorState.maybePop().then((_) => false);
+    }
+
     if (settings.name != history.last.settings.name) {
       final poppedResults = ThrioNavigatorImplement.shared().poppedResults;
       if (poppedResults.containsKey(settings.name)) {
@@ -137,12 +154,15 @@ class NavigatorWidgetState extends State<NavigatorWidget> {
     if (navigatorState == null || history.isEmpty) {
       return Future.value(false);
     }
+    // 处理经过 Navigator 入栈的匿名 Route
+    if (history.last.settings.name == null) {
+      return navigatorState.maybePop().then((_) => false);
+    }
 
     // 处理经过 Navigator 入栈的匿名 Route
     if (settings.name == null) {
       return navigatorState.maybePop().then((_) => false);
     }
-
     // 不管成功与否都 return false，避免原生端清栈
     if (settings.name != history.last.settings.name) {
       return Future.value(false);
@@ -235,8 +255,7 @@ class NavigatorWidgetState extends State<NavigatorWidget> {
     if (navigatorState == null) {
       return Future.value(false);
     }
-    final route =
-        history.firstWhereOrNull((it) => it.settings.name == settings.name);
+    final route = history.firstWhereOrNull((it) => it.settings.name == settings.name);
     if (route == null) {
       return Future.value(false);
     }
@@ -250,8 +269,7 @@ class NavigatorWidgetState extends State<NavigatorWidget> {
     (route as NavigatorPageRoute).routeAction = NavigatorRouteAction.remove;
 
     if (settings.name == history.last.settings.name) {
-      if (WidgetsBinding.instance?.lifecycleState ==
-          AppLifecycleState.resumed) {
+      if (WidgetsBinding.instance?.lifecycleState == AppLifecycleState.resumed) {
         ThrioNavigatorImplement.shared().pageChannel.willDisappear(
               route.settings,
               NavigatorRouteAction.remove,
@@ -298,9 +316,7 @@ class NavigatorWidgetState extends State<NavigatorWidget> {
         if (params.containsKey('__thrio_TParams__')) {
           // ignore: avoid_as
           final typeString = params['__thrio_TParams__'] as String;
-          final paramsObjs =
-              ThrioModule.get<JsonDeserializer>(url: url, key: typeString)
-                  ?.call(params.cast<String, dynamic>());
+          final paramsObjs = ThrioModule.get<JsonDeserializer>(url: url, key: typeString)?.call(params.cast<String, dynamic>());
           poppedResultCallback(paramsObjs);
           return;
         }
